@@ -1,1 +1,0 @@
-All these files in this folder contains different classes to implement a program to understand sync. There is no order to read from these files. Main file is Test.

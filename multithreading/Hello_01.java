@@ -1,4 +1,4 @@
-// threads can be created in java by extending tread class or by implementing Runnable interface
+// threads can be created in java by extending thread class or by implementing Runnable interface
 
 // Method 1 -> Implements Runnabale
 

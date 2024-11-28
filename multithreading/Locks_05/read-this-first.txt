@@ -1,0 +1,139 @@
+All these files in this folder contains different classes to implement a program to understand locks. There is no order to read from these files. Main file is Test.
+
+
+
+IMPORTANT THEORY 
+
+Locks in Java are mechanisms to prevent multiple threads from accessing shared resources (like variables or objects) at the same time, leading to data inconsistency. Java provides two main ways to implement locks: Intrinsic locks and Explicit locks.
+
+Intrinsic Locks (Monitor Locks)
+These are built into Java objects and are used implicitly when you use synchronized.
+
+Features:
+Automatic: You don’t need to create or manage a lock explicitly.
+Tied to an Object: Every Java object has one intrinsic lock (also called a monitor).
+Used with synchronized:
+When a thread enters a synchronized block or method, it acquires the object's intrinsic lock.
+No other thread can enter any synchronized block/method on the same object until the lock is released.
+
+Example:
+
+class SharedResource {
+    synchronized void safeMethod() {
+        // Only one thread can execute this at a time.
+        System.out.println(Thread.currentThread().getName() + " is executing safeMethod");
+    }
+}
+
+public class IntrinsicLockDemo {
+    public static void main(String[] args) {
+        SharedResource resource = new SharedResource();
+
+        Thread t1 = new Thread(() -> resource.safeMethod(), "Thread-1");
+        Thread t2 = new Thread(() -> resource.safeMethod(), "Thread-2");
+
+        t1.start();
+        t2.start();
+    }
+}
+
+
+How it works:
+
+The synchronized keyword ensures that only one thread can access safeMethod at a time.
+The intrinsic lock of the resource object is acquired by a thread when it enters safeMethod.
+
+Limitations:
+Can't try to acquire a lock with a timeout.
+Can't check if the lock is already held by another thread.
+Not very flexible for more advanced locking needs.
+
+
+
+
+
+Explicit Locks (java.util.concurrent.locks.Lock)
+These are part of the java.util.concurrent.locks package and provide more control over locking compared to intrinsic locks.
+
+Features:
+Manual: You need to explicitly acquire and release the lock.
+More Flexible:
+Try to acquire a lock with a timeout.
+Check if the lock is currently held by another thread.
+
+Methods:
+lock(): Acquire the lock.
+unlock(): Release the lock.
+tryLock(): Attempt to acquire the lock without waiting.
+tryLock(timeout, unit): Try to acquire the lock within a given time.
+
+
+Example:
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+class SharedResource {
+    private final Lock lock = new ReentrantLock();
+
+    void safeMethod() {
+        lock.lock(); // Acquire the lock
+        try {
+            System.out.println(Thread.currentThread().getName() + " is executing safeMethod");
+        } finally {
+            lock.unlock(); // Always release the lock in a finally block
+        }
+    }
+}
+
+public class ExplicitLockDemo {
+    public static void main(String[] args) {
+        SharedResource resource = new SharedResource();
+
+        Thread t1 = new Thread(() -> resource.safeMethod(), "Thread-1");
+        Thread t2 = new Thread(() -> resource.safeMethod(), "Thread-2");
+
+        t1.start();
+        t2.start();
+    }
+}
+
+
+How it works:
+You create a ReentrantLock object and use it to control access to safeMethod.
+The lock() method ensures only one thread can enter the critical section.
+The unlock() method releases the lock so another thread can acquire it.
+
+
+Advantages of Explicit Locks:
+Fine-grained control over locking behavior.
+Can try acquiring a lock without blocking forever.
+Can interrupt a thread waiting for a lock.
+
+
+Key Differences:
+Feature	Intrinsic Lock (synchronized)	Explicit Lock (java.util.concurrent.locks.Lock)
+How to Use	Automatic via synchronized	Manual via lock() and unlock()
+Timeout Support	Not supported	Supported (tryLock(timeout))
+Interruptibility	Not supported	Supported
+Reentrancy	Supported	Supported (via ReentrantLock)
+Fairness	Not supported	Supported (via ReentrantLock(true))
+Performance	Slightly better for simple use	Slightly slower but more powerful
+
+
+When to Use Which?
+Use Intrinsic Locks (synchronized) for simpler cases where you just need basic thread-safety.
+Use Explicit Locks (Lock) for advanced cases where you need more control, like timeouts, fairness, or interruptibility.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
